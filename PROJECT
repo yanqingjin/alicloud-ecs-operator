@@ -1,0 +1,8 @@
+domain: hsc.philips.com.cn
+layout: ansible.sdk.operatorframework.io/v1
+projectName: alicloud-ecs-operator
+resources:
+- group: ecs
+  kind: Instance
+  version: v1
+version: 3-alpha

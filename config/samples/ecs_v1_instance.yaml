@@ -1,0 +1,6 @@
+apiVersion: ecs.hsc.philips.com.cn/v1
+kind: Instance
+metadata:
+  name: instance-sample
+spec:
+  foo: bar

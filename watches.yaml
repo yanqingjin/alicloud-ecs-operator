@@ -1,0 +1,7 @@
+---
+# Use the 'create api' subcommand to add watches to this file.
+- version: v1
+  group: ecs.hsc.philips.com.cn
+  kind: Instance
+  role: instance
+# +kubebuilder:scaffold:watch
