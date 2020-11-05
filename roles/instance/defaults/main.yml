@@ -1,2 +1,7 @@
 ---
-# defaults file for Instance
+# defaults file for ECS
+instance_ame: hello
+vpc_id: ""
+availability_zone: ""
+access_key: ""
+secret_key: ""

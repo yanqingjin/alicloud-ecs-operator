@@ -4,4 +4,8 @@
   group: ecs.hsc.philips.com.cn
   kind: Instance
   role: instance
+  finalizer:
+    name: finalizer.instance.ecs.hsc.philips.com.cn
+    vars:
+      terraform_action: destroy
 # +kubebuilder:scaffold:watch

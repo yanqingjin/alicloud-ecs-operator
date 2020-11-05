@@ -3,4 +3,5 @@ kind: Instance
 metadata:
   name: instance-sample
 spec:
-  foo: bar
+  vpcId: vpc-uf69ldjbito6rx6pb5dv9
+

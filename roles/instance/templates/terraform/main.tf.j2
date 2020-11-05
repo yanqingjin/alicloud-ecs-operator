@@ -1,0 +1,7 @@
+module "ecs-{{ instance_name }}" {
+    source = "./ecs"
+
+    name = "{{ instance_name }}"
+    vpc_id = "{{ vpc_id }}"
+    availability_zone = "{{ availability_zone }}"
+}

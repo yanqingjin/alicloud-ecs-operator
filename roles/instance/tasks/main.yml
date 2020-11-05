@@ -1,2 +1,36 @@
 ---
-# tasks file for Instance
+- name: Set terraform_module_dir
+  set_fact:
+    terraform_module_dir: "{{ role_path }}/files/terraform"
+
+- name: Set terraform_templates_dir
+  set_fact:
+    terraform_templates_dir: "{{ role_path }}/templates/terraform"
+
+- name: Get Kuerbetes Custom Resource
+  community.kubernetes.k8s_info:
+    kind: Instance
+    api_version: "ecs.hsc.philips.com.cn/v1"
+    name: "{{ ansible_operator_meta.name }}"
+    namespace: "{{ ansible_operator_meta.namespace }}"
+  register: k8s_cr
+
+- name: Set Terraform State From Custom Resource
+  set_fact:
+    terraform_tfstate: "{{ k8s_cr.resources[0].status.terraformState | b64decode}}"
+  when: k8s_cr.resources[0].status.terraformState is defined
+
+- name: Run terraform
+  include_role:
+    name: terraform-executor
+  vars:
+    access_key: "{{ access_key }}"
+    secret_key: "{{ secret_key }}"
+
+- k8s_status:
+    api_version: ecs.hsc.philips.com.cn/v1
+    kind: Instance
+    name: "{{ ansible_operator_meta.name }}"
+    namespace: "{{ ansible_operator_meta.namespace }}"
+    status:
+      terraformState: "{{ terraform_tfstate | b64encode}}"

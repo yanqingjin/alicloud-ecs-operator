@@ -1,0 +1,6 @@
+---
+# defaults file for ECS
+region: "cn-shanghai"
+access_key: ""
+secret_key: ""
+terraform_action: "apply"

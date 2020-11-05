@@ -1,0 +1,68 @@
+---
+- name: Create terraform temporary dir
+  tempfile:
+    state: directory
+  register: terraform_temporary_dir
+
+- name: Print terraform temporary dir
+  debug:
+    msg: "{{ terraform_temporary_dir.path }}"
+
+- name: Copy terraform module files
+  copy:
+    src: "{{ terraform_module_dir }}/"
+    dest: "{{ terraform_temporary_dir.path }}"
+  when: terraform_module_dir != ""
+
+- name: Generating terraform extra files
+  template:
+    src: "{{ item }}"
+    dest: "{{ terraform_temporary_dir.path }}/{{ item | basename | regex_replace('.j2$') }}"
+  with_fileglob:
+    - "{{ terraform_templates_dir }}/*.j2"
+  when: terraform_module_dir != ""
+
+- name: Generating terraform common provider
+  template:
+    src: "{{ item }}"
+    dest: "{{ terraform_temporary_dir.path }}/{{ item | basename | regex_replace('.j2$') }}"
+  with_fileglob:
+    - "{{ role_path }}/templates/terraform/*.j2"
+
+- name: Generating terraform state
+  template:
+    src: "{{ role_path }}/templates/terraform.tfstate.j2"
+    dest: "{{ terraform_temporary_dir.path }}/terraform.tfstate"
+  when: terraform_tfstate is defined
+
+- name: Running terraform init
+  command: "terraform init -no-color -force-copy"
+  changed_when: false
+  args:
+    chdir: "{{ terraform_temporary_dir.path }}"
+
+- name: Running terraform apply
+  command: "terraform apply -auto-approve -no-color"
+  args:
+    chdir: "{{ terraform_temporary_dir.path }}"
+  register: terraform_apply_result
+  ignore_errors: True
+  environment:
+    ALICLOUD_ACCESS_KEY: "{{ access_key }}"
+    ALICLOUD_SECRET_KEY: "{{ secret_key }}" 
+  when: terraform_action == "apply"
+
+- name: Running terraform destroy
+  command: "terraform destroy -auto-approve -no-color"
+  args:
+    chdir: "{{ terraform_temporary_dir.path }}"
+  register: terraform_destroy_result
+  environment:
+    ALICLOUD_ACCESS_KEY: "{{ access_key }}"
+    ALICLOUD_SECRET_KEY: "{{ secret_key }}" 
+  when: terraform_action == "destroy"
+  ignore_errors: True
+
+- name: Set Terraform tfstate
+  set_fact:
+    terraform_tfstate: "{{ lookup('file', terraform_temporary_dir.path + '/terraform.tfstate') }}"
